@@ -1,19 +1,24 @@
 using Pulse.API.Builders;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
-WebApplication app = PulseApiBuilder
+// CONFIG
+builder.Configuration
+    .AddJsonFile("Properties/appsettings.json", optional: false)
+    .AddJsonFile("Properties/appsettings.Development.json", optional: true);
+
+// SERVICES
+builder.Services.AddControllers();
+
+PulseApiBuilder
     .Create(builder)
     .AddDatabase()
-    .AddIdentityServices()
-    .AddEventServices()
-    .AddEventQueryServices()
-    .UseRequestLogging()
-    .UseExceptionHandling()
-    .AddSwagger()
-    .Build();
+    .AddSwagger();
 
+// BUILD
+WebApplication app = builder.Build();
 
+// PIPELINE
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -21,5 +26,4 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
-
 app.Run();

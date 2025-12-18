@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pulse.API", "Pulse.API\Pulse.API.csproj", "{B807D212-39EA-4CE9-8690-DF0D288A6514}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pulse.Discord", "Pulse.Discord\Pulse.Discord.csproj", "{500262A8-3FC9-422C-ACCB-F1DBBEEED684}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{B807D212-39EA-4CE9-8690-DF0D288A6514}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B807D212-39EA-4CE9-8690-DF0D288A6514}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B807D212-39EA-4CE9-8690-DF0D288A6514}.Release|Any CPU.Build.0 = Release|Any CPU
+		{500262A8-3FC9-422C-ACCB-F1DBBEEED684}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{500262A8-3FC9-422C-ACCB-F1DBBEEED684}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{500262A8-3FC9-422C-ACCB-F1DBBEEED684}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{500262A8-3FC9-422C-ACCB-F1DBBEEED684}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

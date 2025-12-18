@@ -18,5 +18,5 @@ public class Company
     /// <summary>
     /// UCT timestamp when the company was created.
     /// </summary>
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
