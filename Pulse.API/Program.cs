@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Pulse.API.Infrastructure.Persistence;
+using Pulse.API.Infrastructure.Seeding;
 using Pulse.API.Security;
 
 WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
@@ -58,6 +59,9 @@ builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    // =======================
+    // JWT (user / dashboard)
+    // =======================
     options.AddSecurityDefinition("Bearer", new()
     {
         Name = "Authorization",
@@ -68,6 +72,20 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Voer in: Bearer {token}"
     });
 
+    // =======================
+    // BOT API KEY (Discord)
+    // =======================
+    options.AddSecurityDefinition("BotKey", new()
+    {
+        Name = "X-BOT-KEY",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Pulse Discord bot API key"
+    });
+
+    // =======================
+    // Support beide
+    // =======================
     options.AddSecurityRequirement(new()
     {
         {
@@ -82,7 +100,23 @@ builder.Services.AddSwaggerGen(options =>
             Array.Empty<string>()
         }
     });
+
+    options.AddSecurityRequirement(new()
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "BotKey"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
+
 
 // =======================
 // BUILD
@@ -96,6 +130,7 @@ using (IServiceScope? scope = app.Services.CreateScope())
 {
     PulseDbContext? db = scope.ServiceProvider.GetRequiredService<PulseDbContext>();
     db.Database.Migrate();
+    await ModuleSeeder.SeedAsync(db);
 }
 
 // =======================

@@ -26,6 +26,24 @@ public class PulseDbContext : DbContext
             .HasForeignKey(c => c.OwnerUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // -----------------------
+        // MODULES
+        // -----------------------
+
+        modelBuilder.Entity<ModuleDefinition>()
+            .HasIndex(m => m.Key)
+            .IsUnique();
+
+        modelBuilder.Entity<GuildModuleState>()
+            .HasIndex(gm => new { gm.GuildId, gm.ModuleId })
+            .IsUnique();
+
+        modelBuilder.Entity<GuildModuleState>()
+            .HasOne(gm => gm.Module)
+            .WithMany()
+            .HasForeignKey(gm => gm.ModuleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         base.OnModelCreating(modelBuilder);
     }
 }

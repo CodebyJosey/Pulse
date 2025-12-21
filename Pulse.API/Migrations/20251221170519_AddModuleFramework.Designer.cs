@@ -12,8 +12,8 @@ using Pulse.API.Infrastructure.Persistence;
 namespace Pulse.API.Migrations
 {
     [DbContext(typeof(PulseDbContext))]
-    [Migration("20251219025611_BaseSetup")]
-    partial class BaseSetup
+    [Migration("20251221170519_AddModuleFramework")]
+    partial class AddModuleFramework
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -112,6 +112,9 @@ namespace Pulse.API.Migrations
 
                     b.HasIndex("ModuleId");
 
+                    b.HasIndex("GuildId", "ModuleId")
+                        .IsUnique();
+
                     b.ToTable("GuildModules");
                 });
 
@@ -134,6 +137,9 @@ namespace Pulse.API.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
 
                     b.ToTable("Modules");
                 });

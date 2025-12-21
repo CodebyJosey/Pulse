@@ -109,6 +109,9 @@ namespace Pulse.API.Migrations
 
                     b.HasIndex("ModuleId");
 
+                    b.HasIndex("GuildId", "ModuleId")
+                        .IsUnique();
+
                     b.ToTable("GuildModules");
                 });
 
@@ -131,6 +134,9 @@ namespace Pulse.API.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
 
                     b.ToTable("Modules");
                 });

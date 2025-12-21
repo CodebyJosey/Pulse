@@ -13,12 +13,8 @@ string apiUrl = "http://localhost:5255/";
 IHost? host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(s =>
     {
-        s.AddHttpClient<PulseApiClient>(c =>
-        {
-            c.BaseAddress = new Uri(apiUrl);
-        });
-
         s.AddDiscordClient();
+        s.AddPulseServices(apiUrl);
         s.AddHostedService<DiscordHostedService>();
     })
     .Build();

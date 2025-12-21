@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Pulse.API.Migrations
 {
     /// <inheritdoc />
-    public partial class BaseSetup : Migration
+    public partial class AddModuleFramework : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -124,9 +124,21 @@ namespace Pulse.API.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_GuildModules_GuildId_ModuleId",
+                table: "GuildModules",
+                columns: new[] { "GuildId", "ModuleId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_GuildModules_ModuleId",
                 table: "GuildModules",
                 column: "ModuleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Modules_Key",
+                table: "Modules",
+                column: "Key",
+                unique: true);
         }
 
         /// <inheritdoc />

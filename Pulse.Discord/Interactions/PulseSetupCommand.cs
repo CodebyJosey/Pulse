@@ -1,5 +1,6 @@
 using Discord.Interactions;
 using Pulse.Discord.Client;
+using Pulse.Discord.Services;
 using Pulse.Discord.UI.Embeds;
 
 namespace Pulse.Discord.Interactions;
@@ -7,7 +8,14 @@ namespace Pulse.Discord.Interactions;
 public class PulseSetupCommand : InteractionModuleBase<SocketInteractionContext>
 {
     private readonly PulseApiClient _api;
-    public PulseSetupCommand(PulseApiClient api) => _api = api;
+    private readonly BotKeyStore _keys;
+    private readonly ModuleStateService _modules;
+    public PulseSetupCommand(PulseApiClient api, BotKeyStore keys, ModuleStateService modules)
+    {
+        _api = api;
+        _keys = keys;
+        _modules = modules;
+    }
 
     [SlashCommand("pulse-setup", "Connect this server to Pulse.")]
     public async Task Setup(string apiKey)
@@ -21,6 +29,9 @@ public class PulseSetupCommand : InteractionModuleBase<SocketInteractionContext>
                 Context.Guild.Id.ToString(),
                 apiKey
             );
+
+            _keys.Set(Context.Guild.Id, apiKey);
+            _modules.Invalidate(Context.Guild.Id);
 
             await FollowupAsync(
                 embed: PulseEmbed.Success(
