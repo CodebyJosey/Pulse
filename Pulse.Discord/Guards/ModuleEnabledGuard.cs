@@ -29,13 +29,8 @@ public sealed class ModuleEnabledGuard : PreconditionAttribute
         ModuleStateService? modules = services.GetRequiredService<ModuleStateService>();
         bool enabled = await modules.IsEnabledAsync(context.Guild.Id, _moduleKey);
 
-        if (!enabled)
-        {
-            return PreconditionResult.FromError(
-                $"❌ The module `{_moduleKey}` is disabled for this server."
-            );
-        }
-
-        return PreconditionResult.FromSuccess();
+        return enabled
+            ? PreconditionResult.FromSuccess()
+            : PreconditionResult.FromError($"Module `{_moduleKey}` is disabled!");
     }
 }

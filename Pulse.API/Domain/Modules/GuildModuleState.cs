@@ -6,5 +6,6 @@ public class GuildModuleState
     public string GuildId { get; set; } = null!;
     public Guid ModuleId { get; set; }
     public bool Enabled { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
     public ModuleDefinition Module { get; set; } = null!;
 }

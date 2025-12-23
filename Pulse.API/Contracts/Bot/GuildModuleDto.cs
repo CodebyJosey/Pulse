@@ -4,5 +4,6 @@ public record GuildModuleDto(
     string Key,
     string Name,
     string Description,
-    bool Enabled
+    bool Enabled,
+    DateTimeOffset UpdatedAt
 );

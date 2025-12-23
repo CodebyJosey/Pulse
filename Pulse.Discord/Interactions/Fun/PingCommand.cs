@@ -6,7 +6,7 @@ namespace Pulse.Discord.Interactions.Fun;
 [ModuleEnabledGuard("fun")]
 public class PingCommand : InteractionModuleBase<SocketInteractionContext>
 {
-    [SlashCommand("ping", "Check if the bot is alive!")]
+    [SlashCommand("ping", "Ping the bot")]
     public async Task Ping()
     {
         await RespondAsync("🏓 Pong!");

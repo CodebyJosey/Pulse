@@ -27,7 +27,7 @@ public class CompaniesController : ControllerBase
         if (userId is null)
             return Unauthorized();
 
-        var company = new Company
+        Company? company = new Company
         {
             Name = name,
             OwnerUserId = Guid.Parse(userId)

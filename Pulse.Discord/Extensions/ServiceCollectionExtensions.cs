@@ -41,6 +41,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<BotKeyStore>();
         services.AddSingleton<ModuleStateService>();
+        services.AddHostedService<ModuleSyncBackgroundService>();
 
         return services;
     }

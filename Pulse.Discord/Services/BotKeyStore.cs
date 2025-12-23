@@ -25,6 +25,9 @@ public sealed class BotKeyStore
         }
     }
 
+    public IReadOnlyCollection<ulong> GetAllGuilds()
+        => _keys.Keys;
+
     public string Get(ulong guildId)
         => _keys.TryGetValue(guildId, out string? key) ? key : null!;
 
