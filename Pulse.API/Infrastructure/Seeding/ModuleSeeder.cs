@@ -25,7 +25,7 @@ public static class ModuleSeeder
                 Id = Guid.NewGuid(),
                 Key = "logging",
                 Name = "Logging",
-                Description = "Logging & audit events."
+                Description = "Log bot events en commands."
             },
             new ModuleDefinition
             {

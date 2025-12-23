@@ -2,11 +2,13 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Pulse.API.Application.Logging;
+using Pulse.API.Infrastructure.Logging;
 using Pulse.API.Infrastructure.Persistence;
 using Pulse.API.Infrastructure.Seeding;
 using Pulse.API.Security;
 
-WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // =======================
 // CONFIG
@@ -19,16 +21,12 @@ builder.Configuration
 // =======================
 // SERVICES
 // =======================
-
-// Controllers
 builder.Services.AddControllers();
 
 // Database
 builder.Services.AddDbContext<PulseDbContext>(options =>
 {
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("PulseDatabase")
-    );
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PulseDatabase"));
 });
 
 // JWT services
@@ -55,13 +53,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// Swagger (JWT support)
+// ✅ Logging services (DB)
+builder.Services.AddScoped<IPlatformPerformanceLogger, PlatformPerformanceLogger>();
+builder.Services.AddScoped<IPlatformAuditLogger, PlatformAuditLogger>();
+builder.Services.AddScoped<ICompanyLogService, CompanyLogService>();
+
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    // =======================
-    // JWT (user / dashboard)
-    // =======================
     options.AddSecurityDefinition("Bearer", new()
     {
         Name = "Authorization",
@@ -72,9 +72,6 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Voer in: Bearer {token}"
     });
 
-    // =======================
-    // BOT API KEY (Discord)
-    // =======================
     options.AddSecurityDefinition("BotKey", new()
     {
         Name = "X-BOT-KEY",
@@ -83,9 +80,6 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Pulse Discord bot API key"
     });
 
-    // =======================
-    // Support beide
-    // =======================
     options.AddSecurityRequirement(new()
     {
         {
@@ -117,18 +111,17 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-
 // =======================
 // BUILD
 // =======================
-WebApplication? app = builder.Build();
+WebApplication app = builder.Build();
 
 // =======================
-// DATABASE SEED (modules e.d.)
+// DATABASE SEED
 // =======================
-using (IServiceScope? scope = app.Services.CreateScope())
+using (IServiceScope scope = app.Services.CreateScope())
 {
-    PulseDbContext? db = scope.ServiceProvider.GetRequiredService<PulseDbContext>();
+    PulseDbContext db = scope.ServiceProvider.GetRequiredService<PulseDbContext>();
     db.Database.Migrate();
     await ModuleSeeder.SeedAsync(db);
 }
@@ -143,6 +136,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthentication();
+
+// ✅ Performance logging (after auth so we can read UserId claims)
+app.UseMiddleware<PerformanceLoggingMiddleware>();
+
 app.UseAuthorization();
 
 app.MapControllers();

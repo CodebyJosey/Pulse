@@ -65,6 +65,9 @@ public sealed class BotAuthFilter : IAsyncActionFilter
             }
         }
 
+        context.HttpContext.Items["CompanyId"] = bot.CompanyId;
+        context.HttpContext.Items["BotAgentId"] = bot.Id;
+
         await next();
     }
 }

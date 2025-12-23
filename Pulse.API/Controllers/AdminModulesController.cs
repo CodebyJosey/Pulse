@@ -1,7 +1,11 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Pulse.API.Application.Logging;
 using Pulse.API.Contracts.Modules;
+using Pulse.API.Domain.Logging;
 using Pulse.API.Domain.Modules;
 using Pulse.API.Infrastructure.Persistence;
 
@@ -13,10 +17,12 @@ namespace Pulse.API.Controllers;
 public class AdminModulesController : ControllerBase
 {
     private readonly PulseDbContext _db;
+    private readonly IPlatformAuditLogger _audit;
 
-    public AdminModulesController(PulseDbContext db)
+    public AdminModulesController(PulseDbContext db, IPlatformAuditLogger audit)
     {
         _db = db;
+        _audit = audit;
     }
 
     // ============================
@@ -92,6 +98,23 @@ public class AdminModulesController : ControllerBase
         }
 
         await _db.SaveChangesAsync();
+
+        await _audit.LogAsync(new PlatformAuditLog
+        {
+            Id = Guid.NewGuid(),
+            Timestamp = DateTimeOffset.UtcNow,
+            Category = "Admin",
+            Action = "ModuleToggled",
+            Level = "Information",
+            Message = $"Module '{moduleKey}' set to {(request.Enabled ? "ENABLED" : "DISABLED")} for guild {guildId}.",
+            GuildId = guildId,
+            MetadataJson = JsonSerializer.Serialize(new
+            {
+                module = moduleKey,
+                enabled = request.Enabled
+            })
+        });
+
         return NoContent();
     }
 }

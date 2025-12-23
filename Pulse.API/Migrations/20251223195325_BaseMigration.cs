@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Pulse.API.Migrations
 {
     /// <inheritdoc />
-    public partial class AddModuleFramework : Migration
+    public partial class BaseMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -60,7 +60,8 @@ namespace Pulse.API.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     GuildId = table.Column<string>(type: "text", nullable: false),
                     ModuleId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Enabled = table.Column<bool>(type: "boolean", nullable: false)
+                    Enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {

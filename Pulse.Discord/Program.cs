@@ -5,6 +5,7 @@ using Pulse.Discord.Client;
 using Pulse.Discord.Configuration;
 using Pulse.Discord.Extensions;
 using Pulse.Discord.Hosting;
+using Pulse.Discord.UI.Embeds;
 
 EnvironmentLoader.Load();
 

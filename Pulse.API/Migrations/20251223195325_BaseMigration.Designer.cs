@@ -12,8 +12,8 @@ using Pulse.API.Infrastructure.Persistence;
 namespace Pulse.API.Migrations
 {
     [DbContext(typeof(PulseDbContext))]
-    [Migration("20251221170519_AddModuleFramework")]
-    partial class AddModuleFramework
+    [Migration("20251223195325_BaseMigration")]
+    partial class BaseMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -107,6 +107,9 @@ namespace Pulse.API.Migrations
 
                     b.Property<Guid>("ModuleId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
