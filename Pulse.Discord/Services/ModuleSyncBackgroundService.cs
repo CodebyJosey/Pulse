@@ -25,19 +25,37 @@ public sealed class ModuleSyncBackgroundService : BackgroundService
     {
         _logger.LogInformation("Module sync service started.");
 
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            foreach (ulong guildId in _keys.GetAllGuilds())
+            while (!stoppingToken.IsCancellationRequested)
             {
-                bool changed = await _modules.CheckForUpdatesAsync(guildId);
-
-                if (changed)
+                foreach (ulong guildId in _keys.GetAllGuilds())
                 {
-                    _logger.LogInformation("Modules updated for guild {GuildId}", guildId);
-                }
-            }
+                    bool changed = await _modules.CheckForUpdatesAsync(guildId);
 
-            await Task.Delay(Interval, stoppingToken);
+                    if (changed)
+                    {
+                        _logger.LogInformation(
+                            "Modules updated for guild {GuildId}",
+                            guildId
+                        );
+                    }
+                }
+
+                await Task.Delay(Interval, stoppingToken);
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            // 🔕 Verwacht bij shutdown — NIET loggen als error
+            _logger.LogInformation("Module sync service stopping.");
+        }
+        catch (Exception ex)
+        {
+            // ❗ Échte fout
+            _logger.LogError(ex, "Module sync service crashed.");
+            throw;
         }
     }
+
 }

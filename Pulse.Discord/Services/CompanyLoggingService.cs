@@ -1,23 +1,24 @@
-using System.Text.Json;
+using Discord;
 using Pulse.Discord.Client;
 using Pulse.Discord.Services;
-
-namespace Pulse.Discord.Services;
 
 public sealed class CompanyLoggingService
 {
     private readonly ModuleStateService _modules;
     private readonly PulseApiClient _api;
     private readonly BotKeyStore _keys;
+    private readonly DiscordLogChannelService _discordLogs;
 
     public CompanyLoggingService(
         ModuleStateService modules,
         PulseApiClient api,
-        BotKeyStore keys)
+        BotKeyStore keys,
+        DiscordLogChannelService discordLogs)
     {
         _modules = modules;
         _api = api;
         _keys = keys;
+        _discordLogs = discordLogs;
     }
 
     public async Task LogAsync(
@@ -27,35 +28,44 @@ public sealed class CompanyLoggingService
         string message,
         object? metadata = null)
     {
-        if (!await _modules.IsEnabledAsync(guildId, "logging"))
+        await _modules.CheckForUpdatesAsync(guildId);
+        bool enabled = await _modules.IsEnabledAsync(guildId, "logging");
+
+        if (!enabled)
         {
             return;
         }
 
         string? apiKey = _keys.Get(guildId);
-        if (apiKey is null)
+        if (apiKey is not null)
         {
-            return;
+            try
+            {
+                await _api.PostAsync("api/company/logs", new
+                {
+                    GuildId = guildId.ToString(),
+                    ModuleKey = moduleKey,
+                    EventType = eventType,
+                    Message = message,
+                    MetadataJson = metadata is null
+                        ? null
+                        : System.Text.Json.JsonSerializer.Serialize(metadata)
+                }, apiKey);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[CompanyLogging] DB post failed: {ex}");
+            }
+
         }
 
-        var payload = new
-        {
-            GuildId = guildId.ToString(),
-            ModuleKey = moduleKey,
-            EventType = eventType,
-            Message = message,
-            MetadataJson = metadata is null
-                ? null
-                : JsonSerializer.Serialize(metadata)
-        };
+        Embed? embed = new EmbedBuilder()
+            .WithTitle($"📋 {moduleKey} log")
+            .WithDescription(message)
+            .WithColor(Color.DarkGrey)
+            .WithTimestamp(DateTimeOffset.UtcNow)
+            .Build();
 
-        try
-        {
-            await _api.PostAsync("api/company/logs", payload, apiKey);
-        }
-        catch
-        {
-            // logging mag NOOIT bot-gedrag breken
-        }
+        await _discordLogs.TryLogAsync(guildId, embed);
     }
 }

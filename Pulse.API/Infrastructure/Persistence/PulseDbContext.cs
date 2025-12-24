@@ -21,6 +21,8 @@ public class PulseDbContext : DbContext
     public DbSet<PlatformPerformanceLog> PlatformPerformanceLogs => Set<PlatformPerformanceLog>();
     public DbSet<PlatformAuditLog> PlatformAuditLogs => Set<PlatformAuditLog>();
     public DbSet<CompanyLog> CompanyLogs => Set<CompanyLog>();
+    public DbSet<GuildLoggingSettings> GuildLoggingSettings => Set<GuildLoggingSettings>();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

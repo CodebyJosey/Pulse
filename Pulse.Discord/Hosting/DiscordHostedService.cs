@@ -24,55 +24,43 @@ public class DiscordHostedService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        // 🔥 BELANGRIJK: error handler registreren
-        _interactions.SlashCommandExecuted += OnSlashCommandExecutedAsync;
-
         string token = Environment.GetEnvironmentVariable("DISCORD_TOKEN")
             ?? throw new InvalidOperationException("DISCORD_TOKEN missing!");
 
-        // Logging
-        _client.Log += msg =>
-        {
-            Console.WriteLine(msg);
-            return Task.CompletedTask;
-        };
+        // 1️⃣ Modules LADEN vóórdat Discord events binnenkomen
+        await _interactions.AddModulesAsync(
+            typeof(DiscordHostedService).Assembly,
+            _services
+        );
 
-        // Interaction dispatcher
+        // 2️⃣ Events registreren
         _client.InteractionCreated += async interaction =>
         {
-            try
-            {
-                SocketInteractionContext? ctx = new SocketInteractionContext(_client, interaction);
-                await _interactions.ExecuteCommandAsync(ctx, _services);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
+            SocketInteractionContext ctx = new SocketInteractionContext(_client, interaction);
+            await _interactions.ExecuteCommandAsync(ctx, _services);
         };
 
-        // Login & start
+        _interactions.SlashCommandExecuted += OnSlashCommandExecutedAsync;
+
+        // 3️⃣ Login & start
         await _client.LoginAsync(TokenType.Bot, token);
         await _client.StartAsync();
 
-        // Ready event
+        // 4️⃣ Commands registreren bij Discord (NA Ready)
         _client.Ready += async () =>
         {
-            // Commands laden
-            await _interactions.AddModulesAsync(
-                typeof(Pulse.Discord.Interactions.PulseSetupCommand).Assembly,
-                _services
-            );
-
-            // DEV: per guild registreren (direct zichtbaar)
             foreach (SocketGuild guild in _client.Guilds)
             {
-                await _interactions.RegisterCommandsToGuildAsync(guild.Id);
+                await _interactions.RegisterCommandsToGuildAsync(
+                    guild.Id,
+                    deleteMissing: true
+                );
             }
 
             Console.WriteLine("✅ Slash commands registered");
         };
     }
+
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {

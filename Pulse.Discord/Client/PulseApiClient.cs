@@ -24,7 +24,7 @@ public class PulseApiClient
     {
         _http.DefaultRequestHeaders.Remove("X-BOT-KEY");
 
-        if(!string.IsNullOrWhiteSpace(apiKey))
+        if (!string.IsNullOrWhiteSpace(apiKey))
         {
             _http.DefaultRequestHeaders.Add("X-BOT-KEY", apiKey);
         }
@@ -38,4 +38,18 @@ public class PulseApiClient
 
         return result;
     }
+
+    public async Task PutAsync<T>(string url, T body, string? apiKey = null)
+    {
+        _http.DefaultRequestHeaders.Remove("X-BOT-KEY");
+
+        if (!string.IsNullOrWhiteSpace(apiKey))
+        {
+            _http.DefaultRequestHeaders.Add("X-BOT-KEY", apiKey);
+        }
+
+        HttpResponseMessage res = await _http.PutAsJsonAsync(url, body);
+        res.EnsureSuccessStatusCode();
+    }
+
 }

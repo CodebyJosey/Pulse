@@ -11,11 +11,15 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddDiscordClient(this IServiceCollection services)
     {
+        // Discord socket client
         services.AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
         {
-            GatewayIntents = GatewayIntents.Guilds
+            GatewayIntents =
+                GatewayIntents.Guilds |
+                GatewayIntents.GuildMessages
         }));
 
+        // Interaction service
         services.AddSingleton<InteractionService>(sp =>
         {
             DiscordSocketClient client = sp.GetRequiredService<DiscordSocketClient>();
@@ -27,6 +31,13 @@ public static class ServiceCollectionExtensions
             });
         });
 
+        // 🔥 REGISTREER DE REST CLIENT DIE BIJ DE SOCKET HOORT
+        services.AddSingleton(sp =>
+        {
+            DiscordSocketClient socket = sp.GetRequiredService<DiscordSocketClient>();
+            return socket.Rest; // DiscordSocketRestClient
+        });
+
         return services;
     }
 
@@ -34,14 +45,22 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services,
         string apiBaseUrl)
     {
+        // API client
         services.AddHttpClient<PulseApiClient>(http =>
         {
             http.BaseAddress = new Uri(apiBaseUrl);
         });
 
+        // Bot state
         services.AddSingleton<BotKeyStore>();
+
+        // Module & logging services
         services.AddSingleton<ModuleStateService>();
+        services.AddSingleton<GuildLoggingSettingsService>();
+        services.AddSingleton<DiscordLogChannelService>();
         services.AddSingleton<CompanyLoggingService>();
+
+        // Background sync
         services.AddHostedService<ModuleSyncBackgroundService>();
 
         return services;
